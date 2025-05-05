@@ -10,6 +10,11 @@ var scenePlay = new Phaser.Class({
     this.load.image("fg_loop", "images/fg_loop.png");
     this.load.image("obstc", "images/obstc.png");
     this.load.image("panel_skor", "images/panel_skor.png");
+
+    this.load.audio("snd_dead", "../audio/dead.mp3");
+    this.load.audio("snd_klik_1", "../audio/klik_1.mp3");
+    this.load.audio("snd_klik_2", "../audio/klik_2.mp3");
+    this.load.audio("snd_klik_3", "../audio/klik_3.mp3");
   },
   create: function () {
     this.background = [];
@@ -41,11 +46,21 @@ var scenePlay = new Phaser.Class({
     this.label_score.setFontSize(30);
     this.label_score.setTint(0xff732e);
 
+    this.snd_dead = this.sound.add("snd_dead");
+
+    this.snd_click = [];
+    this.snd_click.push(this.sound.add("snd_klik_1"));
+    this.snd_click.push(this.sound.add("snd_klik_2"));
+    this.snd_click.push(this.sound.add("snd_klik_3"));
+
+    for (let i = 0; i < this.snd_click.length; i++) {
+      this.snd_click[i].setVolume(0.5);
+    }
+
     this.gameOver = function () {
+      let highScore = localStorage["highscore"] || 0;
 
-      let highScore = localStorage[highscore] || 0;
-
-      if(myScene.score > highScore){
+      if (myScene.score > highScore) {
         localStorage["highscore"] = myScene.score;
       }
       myScene.scene.start("sceneMenu");
@@ -88,6 +103,8 @@ var scenePlay = new Phaser.Class({
       "pointerup",
       function (pointer, currentlyOver) {
         if (!this.isGameRunning) return;
+
+        this.snd_click[Math.floor((Math.random() *2))].play();
 
         this.charaTweens = this.tweens.add({
           targets: this.chara,
@@ -165,6 +182,8 @@ var scenePlay = new Phaser.Class({
         this.halangan[i].setData("status_aktif", false);
         this.isGameRunning = false;
 
+        this.snd_dead.play();
+
         if (this.charaTweens != null) {
           this.charaTweens.stop();
         }
@@ -174,7 +193,7 @@ var scenePlay = new Phaser.Class({
         this.charaTweens = this.tweens.add({
           targets: this.chara,
           ease: "Elastic.easeOut",
-          duration: 2000,
+          duration: 750,
           alpha: 0,
           onComplete: myScene.gameOver,
         });
@@ -185,6 +204,8 @@ var scenePlay = new Phaser.Class({
 
     if (this.chara.y < -50) {
       this.isGameRunning = false;
+
+      this.snd_dead.play()
 
       if (this.charaTweens != null) {
         this.charaTweens.stop();

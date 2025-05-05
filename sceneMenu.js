@@ -11,21 +11,39 @@ var sceneMenu = new Phaser.Class({
     this.load.image("btn_play", "images/btn_play.png");
     this.load.image("title_game", "images/title_game.png");
     this.load.image("panel_skor", "images/panel_skor.png");
+    
+    this.load.audio("snd_ambience", "../audio/ambience.mp3");
+    this.load.audio("snd_touch", "../audio/touch.mp3");
+    this.load.audio("snd_transisi_menu", "../audio/transisi_menu.mp3");
   },
 
-  create: function() {
+
+  create: function () {
+    if(snd_ambience == null) {
+      snd_ambience = this.sound.add("snd_ambience");
+      snd_ambience.loop = true;
+      snd_ambience.setVolume(0.35);
+      snd_ambience.play();
+    }
+
+    this.snd_touch = this.sound.add("snd_touch");
+    var snd_transisi = this.sound.add("snd_transisi_menu");
 
     var skorTertinggi = localStorage["highscore"] || 0;
 
-    var panelSkor = this.add.image(1024/2, 768-120,'panel_skor');
+    var panelSkor = this.add.image(1024 / 2, 768 - 120, "panel_skor");
     panelSkor.setOrigin(0.5);
     panelSkor.setDepth(10);
     panelSkor.setAlpha(0);
 
-    var lblSkor = this.add.text(panelSkor.x + 25, panelSkor.y, "High Score : "+ skorTertinggi);
+    var lblSkor = this.add.text(
+      panelSkor.x + 25,
+      panelSkor.y,
+      "High Score : " + skorTertinggi
+    );
     lblSkor.setOrigin(0.5);
     lblSkor.setDepth(10);
-    lblSkor.setFontSize[30];
+    lblSkor.setFontSize(30);
     lblSkor.setTint(0xff732e);
 
     this.add.image(1024 / 2, 768 / 2, "bg_start");
@@ -45,6 +63,9 @@ var sceneMenu = new Phaser.Class({
       duration: 750,
       delay: 250,
       y: 200,
+      onComplete: function(){
+        snd_transisi.play();
+      }
     });
 
     btnPlay.setScale(0);
@@ -63,7 +84,7 @@ var sceneMenu = new Phaser.Class({
     this.tweens.add({
       targets: diz.titleGame,
       ease: "Elastic",
-      duraztion: 750,
+      duration: 750,
       delay: 1000,
       scaleX: 1,
       scaleY: 1,
@@ -109,8 +130,8 @@ var sceneMenu = new Phaser.Class({
         console.log("Scene Menu | Object End Click");
         if (gameObject == btnPlay) {
           btnPlay.setTint(0xffffff);
-
           this.scene.start("scenePlay");
+          this.snd_touch.play();
         }
       },
       this
