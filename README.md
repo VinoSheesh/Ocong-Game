@@ -1,6 +1,5 @@
-👻 Ocong Game (Endless Game)
+## 👻 Ocong Game (Endless Game)
 
-## 📖 Pengantar
 **Ocong Game** adalah sebuah game 2D sederhana yang dibuat menggunakan Phaser. Dalam game ini, kamu akan mengendalikan karakter utama, yaitu Ocong. Tujuanmu adalah menghindari kristal yang datang dari sebelah kanan layar dan bertahan selama mungkin tanpa menabrak!
 
 ## 🎮 Cara Kontrol
