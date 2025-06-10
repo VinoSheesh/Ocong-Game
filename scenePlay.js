@@ -20,6 +20,7 @@ var scenePlay = new Phaser.Class({
     this.background = [];
 
     this.isGameRunning = false;
+    this.isGameOver = false; // Tambahkan flag untuk game over
 
     this.chara = this.add.image(130, 768 / 2, "chara");
     this.chara.setDepth(3);
@@ -57,13 +58,14 @@ var scenePlay = new Phaser.Class({
       this.snd_click[i].setVolume(0.5);
     }
 
+    // Pindahkan gameOver ke dalam fungsi terpisah dan perbaiki referensi
     this.gameOver = function () {
       let highScore = localStorage["highscore"] || 0;
 
-      if (myScene.score > highScore) {
-        localStorage["highscore"] = myScene.score;
+      if (this.score > highScore) {
+        localStorage["highscore"] = this.score;
       }
-      myScene.scene.start("sceneMenu");
+      this.scene.start("sceneMenu");
     };
 
     var myScene = this;
@@ -102,9 +104,9 @@ var scenePlay = new Phaser.Class({
     this.input.on(
       "pointerup",
       function (pointer, currentlyOver) {
-        if (!this.isGameRunning) return;
+        if (!this.isGameRunning || this.isGameOver) return; // Tambahkan check isGameOver
 
-        this.snd_click[Math.floor((Math.random() *2))].play();
+        this.snd_click[Math.floor((Math.random() * 2))].play();
 
         this.charaTweens = this.tweens.add({
           targets: this.chara,
@@ -117,10 +119,19 @@ var scenePlay = new Phaser.Class({
     );
   },
   update: function () {
+    // Hentikan semua update jika game over
+    if (this.isGameOver) return;
+
     if (this.isGameRunning) {
       this.chara.y -= 5;
 
       if (this.chara.y > 690) this.chara.y = 690;
+      
+      // Pindahkan pengecekan batas atas ke sini dan tambahkan return
+      if (this.chara.y < 50) {
+        this.handleGameOver();
+        return; // Keluar dari update setelah game over
+      }
     }
 
     for (let i = 0; i < this.background.length; i++) {
@@ -175,51 +186,39 @@ var scenePlay = new Phaser.Class({
       }
     }
 
+    // Collision detection dengan obstacles
     for (let i = this.halangan.length - 1; i >= 0; i--) {
       if (
         this.chara.getBounds().contains(this.halangan[i].x, this.halangan[i].y)
       ) {
         this.halangan[i].setData("status_aktif", false);
-        this.isGameRunning = false;
-
-        this.snd_dead.play();
-
-        if (this.charaTweens != null) {
-          this.charaTweens.stop();
-        }
-
-        var myScene = this;
-
-        this.charaTweens = this.tweens.add({
-          targets: this.chara,
-          ease: "Elastic.easeOut",
-          duration: 750,
-          alpha: 0,
-          onComplete: myScene.gameOver,
-        });
-
+        this.handleGameOver();
         break;
       }
     }
-
-    if (this.chara.y < -50) {
-      this.isGameRunning = false;
-
-      this.snd_dead.play()
-
-      if (this.charaTweens != null) {
-        this.charaTweens.stop();
-      }
-
-      let myScene = this;
-
-      this.charaTweens = this.tweens.add({
-        targets: this.chara,
-        ease: "Elastic.easeOut",
-        duration: 2000,
-        alpha: 0,
-        onComplete: myScene.gameOver,
-      });
-    }
   },
+  
+  // Buat fungsi terpisah untuk handle game over
+  handleGameOver: function() {
+    this.isGameRunning = false;
+    this.isGameOver = true; // Set flag game over
+    
+    this.snd_dead.play();
+
+    if (this.charaTweens != null) {
+      this.charaTweens.stop();
+    }
+
+    var myScene = this;
+
+    this.charaTweens = this.tweens.add({
+      targets: this.chara,
+      ease: "Elastic.easeOut",
+      duration: 750,
+      alpha: 0,
+      onComplete: function() {
+        myScene.gameOver();
+      }
+    });
+  }
 });

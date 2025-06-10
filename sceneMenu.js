@@ -11,15 +11,51 @@ var sceneMenu = new Phaser.Class({
     this.load.image("btn_play", "images/btn_play.png");
     this.load.image("title_game", "images/title_game.png");
     this.load.image("panel_skor", "images/panel_skor.png");
-    
+
     this.load.audio("snd_ambience", "../audio/ambience.mp3");
     this.load.audio("snd_touch", "../audio/touch.mp3");
     this.load.audio("snd_transisi_menu", "../audio/transisi_menu.mp3");
+
+    this.load.spritesheet("sps_mummy", "sprite/mummy37x45.png", {
+      frameWidth: 37,
+      frameHeight: 45,
+    });
   },
 
-
   create: function () {
-    if(snd_ambience == null) {
+    mummy = this.add.sprite(1024 / 2, 768 - 170, "sps_mummy");
+    mummy.setDepth(10);
+    mummy.setScale(3);
+    this.anims.create({
+      key: "walk",
+      frames: this.anims.generateFrameNumbers("sps_mummy", {
+        start: 0,
+        end: 17,
+      }),
+      frameRate: 16,
+    });
+    mummy.play({ key: "walk", repeat: -1 });
+
+    X_POSITION = {
+      LEFT: 0,
+      CENTER: this.sys.game.canvas.width / 2,
+      RIGHT: this.sys.game.canvas.width,
+    };
+
+    Y_POSITION = {
+      TOP: 0,
+      CENTER: this.sys.game.canvas.height / 2,
+      BOTTOM: this.sys.game.canvas.height,
+    };
+
+    this.add.image(X_POSITION.CENTER, Y_POSITION.CENTER, "bg_start");
+
+    var btnPlay = this.add.image(
+      X_POSITION.CENTER,
+      Y_POSITION.CENTER,
+      "btn_play"
+    );
+    if (snd_ambience == null) {
       snd_ambience = this.sound.add("snd_ambience");
       snd_ambience.loop = true;
       snd_ambience.setVolume(0.35);
@@ -34,7 +70,8 @@ var sceneMenu = new Phaser.Class({
     var panelSkor = this.add.image(1024 / 2, 768 - 120, "panel_skor");
     panelSkor.setOrigin(0.5);
     panelSkor.setDepth(10);
-    panelSkor.setAlpha(0);
+    // Hapus setAlpha(0) atau ubah menjadi setAlpha(1)
+    panelSkor.setAlpha(1);
 
     var lblSkor = this.add.text(
       panelSkor.x + 25,
@@ -43,12 +80,8 @@ var sceneMenu = new Phaser.Class({
     );
     lblSkor.setOrigin(0.5);
     lblSkor.setDepth(10);
-    lblSkor.setFontSize(30);
+    lblSkor.setFontSize(25);
     lblSkor.setTint(0xff732e);
-
-    this.add.image(1024 / 2, 768 / 2, "bg_start");
-
-    var btnPlay = this.add.image(1024 / 2, 768 / 2 + 75, "btn_play");
 
     this.titleGame = this.add.image(1024 / 2, 200, "title_game");
     this.titleGame.setDepth(10);
@@ -63,9 +96,9 @@ var sceneMenu = new Phaser.Class({
       duration: 750,
       delay: 250,
       y: 200,
-      onComplete: function(){
+      onComplete: function () {
         snd_transisi.play();
-      }
+      },
     });
 
     btnPlay.setScale(0);
@@ -88,6 +121,26 @@ var sceneMenu = new Phaser.Class({
       delay: 1000,
       scaleX: 1,
       scaleY: 1,
+    });
+
+    // Tambahkan animasi fade-in untuk panel skor agar lebih menarik
+    panelSkor.setAlpha(0);
+    this.tweens.add({
+      targets: panelSkor,
+      ease: "Power2",
+      duration: 500,
+      delay: 1250,
+      alpha: 1,
+    });
+
+    // Tambahkan animasi fade-in untuk label skor juga
+    lblSkor.setAlpha(0);
+    this.tweens.add({
+      targets: lblSkor,
+      ease: "Power2",
+      duration: 500,
+      delay: 1500,
+      alpha: 1,
     });
 
     this.input.on(
