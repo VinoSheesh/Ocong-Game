@@ -18,4 +18,4 @@ Berikut adalah tampilan dari game:
 
 ## 🚀 Cara Memainkan
 1. Klik Link ini untuk bermain
-   https://vinosheesh.github.io/Ocong-Game/
+   [https://vinosheesh.github.io/Ocong-Game/](https://vinosheesh.github.io/Ocong-Game/)
